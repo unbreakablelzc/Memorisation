@@ -22,7 +22,7 @@ batch_size = 128
 display_step = 500
 
 # Network Parameters
-seq_max_len = 397  # Sequence max length
+seq_max_len = 797  # Sequence max length
 n_hidden = 64  # hidden layer num of features
 n_classes = 2  # linear sequence or not
 
@@ -47,6 +47,12 @@ class Memlog_1(object):
                 data_processing_due_time.append(list_line_all)
                 j = j + 1
 
+        l = 0
+        data_instance = []
+        for l in range(200):
+            data_instance.extend(data_processing_due_time[l])
+            l = l + 1
+
         f = open('data/memlog_200_1.txt', "r")
         i = 1
         k = 0
@@ -68,7 +74,10 @@ class Memlog_1(object):
                 for job in range(length):
                     data_tmp.extend(data_processing_due_time[list_line[job] - 1])
                 data_tmp.insert(0, data_start_time[k])
-                data_tmp += [0 for i in range(max_seq_len - 2 * length - 1)]
+                data_tmp = data_instance + data_tmp
+
+                data_tmp += [0 for i in range(max_seq_len - 2 * length - 1 - 400)]
+                #print(len(data_tmp))
                 k = k + 1
                 data_raw.append(data_tmp)
                 # print(len(data_tmp))
@@ -79,7 +88,7 @@ class Memlog_1(object):
         # print(self.labels)
         # print(data_raw)
         print(np.array(data_raw).shape)
-        self.data = np.array(data_raw).reshape(-1, 198 * 2 + 1, 1)
+        self.data = np.array(data_raw).reshape(-1, 198 * 2 + 1 + 400, 1)
 
         # self.data = data_raw
         self.batch_id = 0
