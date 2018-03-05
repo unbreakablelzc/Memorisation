@@ -16,9 +16,9 @@ import time
 # ==========
 
 # Parameters
-learning_rate = 0.01
-training_steps = 10000
-batch_size = 128
+learning_rate = 10**-6
+training_steps = 5000
+batch_size = 256
 display_step = 500
 
 # Network Parameters
@@ -30,7 +30,7 @@ n_classes = 2  # linear sequence or not
 #  DATA GENERATOR
 # ====================
 class Memlog_1(object):
-    def __init__(self, n_samples=1000, max_seq_len=20, min_seq_len=10, max_value=1000):
+    def __init__(self, n_samples=1000, max_seq_len=20, min_seq_len=10, max_value=1000, path=""):
         self.data = []
         self.labels = []
         self.seqlen = []
@@ -53,7 +53,7 @@ class Memlog_1(object):
             data_instance.extend(data_processing_due_time[l])
             l = l + 1
 
-        f = open('data/memlog_200_1.txt', "r")
+        f = open(path, "r")
         i = 1
         k = 0
         for line in f:
@@ -150,8 +150,10 @@ def dynamicRNN(x, seqlen, weights, biases):
 
 if __name__ == "__main__":
     # 25096 data in total, 3/4 to train, 1/4 to test
-    trainset = Memlog_1(n_samples=37644, max_seq_len=seq_max_len)
-    testset = Memlog_1(n_samples=12548, max_seq_len=seq_max_len)
+    #trainset = Memlog_1(n_samples=37644, max_seq_len=seq_max_len)
+    #testset = Memlog_1(n_samples=12548, max_seq_len=seq_max_len)
+    trainset = Memlog_1(max_seq_len=seq_max_len, path="data/memlog.txt")
+    testset = Memlog_1(max_seq_len=seq_max_len, path="data/test.txt")
 
     # tf Graph input
     x = tf.placeholder(tf.float32, [None, seq_max_len, 1])

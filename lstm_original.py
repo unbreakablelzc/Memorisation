@@ -16,8 +16,8 @@ import time
 # ==========
 
 # Parameters
-learning_rate = 0.01
-training_steps = 10000
+learning_rate = 10**-7
+training_steps = 5000
 batch_size = 128
 display_step = 500
 
@@ -30,7 +30,7 @@ n_classes = 2  # linear sequence or not
 #  DATA GENERATOR
 # ====================
 class Memlog_1(object):
-    def __init__(self, n_samples=1000, max_seq_len=20, min_seq_len=10, max_value=1000):
+    def __init__(self, max_seq_len=20, min_seq_len=10, max_value=1000, path = ""):
         self.data = []
         self.labels = []
         self.seqlen = []
@@ -47,9 +47,12 @@ class Memlog_1(object):
                 data_processing_due_time.append(list_line_all)
                 j = j + 1
 
-        f = open('data/memlog_200_1.txt', "r")
+        # = open('data/memlog_200_1.txt', "r")
+        f = open(path, "r")
         i = 1
         k = 0
+        ling =0
+        yi = 0
         for line in f:
             list_line = line.split()
             list_line = list(map(int, list_line))
@@ -57,8 +60,10 @@ class Memlog_1(object):
             if i % 2 == 1:
                 if (list_line[0] == 0):
                     self.labels.append([0., 0.])
+                    ling += 1
                 else:
                     self.labels.append([0., 1.])
+                    yi += 1
                 self.seqlen.append(list_line[1])
                 data_start_time.append(list_line[2])
             # even_numbered line
@@ -78,6 +83,7 @@ class Memlog_1(object):
 
         # print(self.labels)
         # print(data_raw)
+        print(ling,yi)
         print(np.array(data_raw).shape)
         self.data = np.array(data_raw).reshape(-1, 198 * 2 + 1, 1)
 
@@ -99,6 +105,7 @@ class Memlog_1(object):
         l = list(zip(batch_data, batch_labels, batch_seqlen))
         random.shuffle(l)
         batch_data, batch_labels, batch_seqlen = zip(*l)
+        print(batch_labels)
         return batch_data, batch_labels, batch_seqlen
 
 
@@ -110,7 +117,7 @@ def dynamicRNN(x, seqlen, weights, biases):
     # Unstack to get a list of 'n_steps' tensors of shape (batch_size, n_input)
     x = tf.unstack(x, seq_max_len, 1)
 
-    # Define a lstm cell with tensorflow
+    # Define a lstm cell with tesorflow
     lstm_cell = tf.contrib.rnn.BasicLSTMCell(n_hidden)
 
     # Get lstm cell output, providing "sequence_length" will perform dynamic
@@ -141,8 +148,11 @@ def dynamicRNN(x, seqlen, weights, biases):
 
 if __name__ == "__main__":
     # 25096 data in total, 3/4 to train, 1/4 to test
-    trainset = Memlog_1(n_samples=37644, max_seq_len=seq_max_len)
-    testset = Memlog_1(n_samples=12548, max_seq_len=seq_max_len)
+    #trainset = Memlog_1(n_samples=37644, max_seq_len=seq_max_len)
+    #testset = Memlog_1(n_samples=12548, max_seq_len=seq_max_len)
+
+    trainset = Memlog_1(max_seq_len=seq_max_len, path="data/memlog.txt")
+    testset = Memlog_1(max_seq_len=seq_max_len, path="data/test.txt")
 
     # tf Graph input
     x = tf.placeholder(tf.float32, [None, seq_max_len, 1])
