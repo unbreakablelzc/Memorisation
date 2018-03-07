@@ -18,7 +18,7 @@ import time
 # Parameters
 learning_rate = 10**-6
 training_steps = 5000
-batch_size = 256
+batch_size = 512
 display_step = 500
 
 # Network Parameters
@@ -56,6 +56,9 @@ class Memlog_1(object):
         f = open(path, "r")
         i = 1
         k = 0
+
+        zero = 0
+        one = 0
         for line in f:
             list_line = line.split()
             list_line = list(map(int, list_line))
@@ -63,8 +66,10 @@ class Memlog_1(object):
             if i % 2 == 1:
                 if (list_line[0] == 0):
                     self.labels.append([0., 0.])
+                    zero += 1
                 else:
                     self.labels.append([0., 1.])
+                    one += 1
                 self.seqlen.append(list_line[1])
                 data_start_time.append(list_line[2])
             # even_numbered line
@@ -85,11 +90,11 @@ class Memlog_1(object):
                 # time.sleep(0.1)
             i = i + 1
 
+        print("positive:", one, "negative:", zero)
         # print(self.labels)
         # print(data_raw)
         print(np.array(data_raw).shape)
         self.data = np.array(data_raw).reshape(-1, 198 * 2 + 1 + 400, 1)
-
         # self.data = data_raw
         self.batch_id = 0
 
@@ -152,8 +157,8 @@ if __name__ == "__main__":
     # 25096 data in total, 3/4 to train, 1/4 to test
     #trainset = Memlog_1(n_samples=37644, max_seq_len=seq_max_len)
     #testset = Memlog_1(n_samples=12548, max_seq_len=seq_max_len)
-    trainset = Memlog_1(max_seq_len=seq_max_len, path="data/memlog.txt")
-    testset = Memlog_1(max_seq_len=seq_max_len, path="data/test.txt")
+    trainset = Memlog_1(max_seq_len=seq_max_len, path="data/memlog_2.txt")
+    testset = Memlog_1(max_seq_len=seq_max_len, path="data/memog_2_test.txt")
 
     # tf Graph input
     x = tf.placeholder(tf.float32, [None, seq_max_len, 1])
