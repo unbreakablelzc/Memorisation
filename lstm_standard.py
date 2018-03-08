@@ -16,10 +16,11 @@ import time
 # ==========
 
 # Parameters
+#learning_rate = 6.2298265 * 10**-6
 learning_rate = 10**-6
-training_steps = 5000
+training_steps = 3000
 batch_size = 512
-display_step = 500
+display_step = 100
 
 # Network Parameters
 seq_max_len = 797  # Sequence max length
@@ -50,7 +51,7 @@ class Memlog_1(object):
         l = 0
         data_instance = []
         for l in range(200):
-            data_instance.extend(data_processing_due_time[l])
+            data_instance.extend(data_processing_due_time[l+201])
             l = l + 1
 
         f = open(path, "r")
@@ -96,6 +97,7 @@ class Memlog_1(object):
         print(np.array(data_raw).shape)
         self.data = np.array(data_raw).reshape(-1, 198 * 2 + 1 + 400, 1)
         # self.data = data_raw
+        #print(self.data)
         self.batch_id = 0
 
     def next(self, batch_size):
@@ -210,6 +212,9 @@ if __name__ == "__main__":
         test_data = testset.data
         test_label = testset.labels
         test_seqlen = testset.seqlen
+        l = list(zip(test_data, test_label, test_seqlen))
+        random.shuffle(l)
+        test_data, test_label, test_seqlen = zip(*l)
         print("Testing Accuracy:", \
               sess.run(accuracy, feed_dict={x: test_data, y: test_label,
                                             seqlen: test_seqlen}))
