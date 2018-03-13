@@ -17,14 +17,15 @@ import time
 
 # Parameters
 #learning_rate = 6.2298265 * 10**-6
-learning_rate = 10**-6
-training_steps = 3000
-batch_size = 512
+start_learning_rate = 0.1
+training_steps = 1000
+batch_size = 256
 display_step = 100
+logs_path = "/data"
 
 # Network Parameters
 seq_max_len = 797  # Sequence max length
-n_hidden = 64  # hidden layer num of features
+n_hidden = 128  # hidden layer num of features
 n_classes = 2  # linear sequence or not
 
 # ====================
@@ -96,7 +97,9 @@ class Memlog_1(object):
         # print(data_raw)
         print(np.array(data_raw).shape)
         self.data = np.array(data_raw).reshape(-1, 198 * 2 + 1 + 400, 1)
-        # self.data = data_raw
+        l = list(zip(self.data, self.labels, self.seqlen))
+        random.shuffle(l)
+        self.data, self.labels, self.seqlen = zip(*l)
         #print(self.data)
         self.batch_id = 0
 
@@ -112,9 +115,9 @@ class Memlog_1(object):
         batch_seqlen = (self.seqlen[self.batch_id:min(self.batch_id +
                                                       batch_size, len(self.data))])
         self.batch_id = min(self.batch_id + batch_size, len(self.data))
-        l = list(zip(batch_data, batch_labels, batch_seqlen))
-        random.shuffle(l)
-        batch_data, batch_labels, batch_seqlen = zip(*l)
+        #l = list(zip(batch_data, batch_labels, batch_seqlen))
+        #random.shuffle(l)
+        #batch_data, batch_labels, batch_seqlen = zip(*l)
         return batch_data, batch_labels, batch_seqlen
 
 
@@ -124,7 +127,7 @@ def dynamicRNN(x, seqlen, weights, biases):
     # Required shape: 'n_steps' tensors list of shape (batch_size, n_input)
 
     # Unstack to get a list of 'n_steps' tensors of shape (batch_size, n_input)
-    x = tf.unstack(x, seq_max_len, 1)
+    x = tf.unstack(value=x, num=seq_max_len, axis=1)
 
     # Define a lstm cell with tensorflow
     lstm_cell = tf.contrib.rnn.BasicLSTMCell(n_hidden)
@@ -162,29 +165,46 @@ if __name__ == "__main__":
     trainset = Memlog_1(max_seq_len=seq_max_len, path="data/memlog_2.txt")
     testset = Memlog_1(max_seq_len=seq_max_len, path="data/memog_2_test.txt")
 
-    # tf Graph input
-    x = tf.placeholder(tf.float32, [None, seq_max_len, 1])
-    y = tf.placeholder(tf.float32, [None, n_classes])
-    # A placeholder for indicating each sequence length
-    seqlen = tf.placeholder(tf.int32, [None])
+    with tf.name_scope('input'):
+        # tf Graph input
+        x = tf.placeholder(tf.float32, [None, seq_max_len, 1], name="x_input")
+        y = tf.placeholder(tf.float32, [None, n_classes], name="y_input")
+        # A placeholder for indicating each sequence length
+        seqlen = tf.placeholder(tf.int32, [None], name="sequence_len")
 
+    with tf.name_scope("weights"):
     # Define weights
-    weights = {
-        'out': tf.Variable(tf.random_normal([n_hidden, n_classes]))
-    }
-    biases = {
-        'out': tf.Variable(tf.random_normal([n_classes]))
-    }
+        weights = {
+            'out': tf.Variable(tf.random_normal([n_hidden, n_classes]))
+        }
+
+    with tf.name_scope("biases"):
+        biases = {
+            'out': tf.Variable(tf.random_normal([n_classes]))
+        }
 
     pred = dynamicRNN(x, seqlen, weights, biases)
 
-    # Define loss and optimizer
-    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cost)
+    with tf.name_scope("cost"):
+        # Define loss and optimizer
+        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
 
-    # Evaluate model
-    correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+    with tf.name_scope("learning_rate"):
+        global_step = tf.Variable(0)
+        learning_rate = tf.train.exponential_decay(start_learning_rate, global_step, 100, 0.5, staircase=True)
+
+    with tf.name_scope("train"):
+        optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cost, global_step=global_step)
+
+    with tf.name_scope("accuracy"):
+        # Evaluate model
+        correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
+        accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+
+    tf.summary.scalar("learning_rate", learning_rate)
+    tf.summary.scalar("cost", cost)
+    tf.summary.scalar("accuracy", accuracy)
+    merged_summary = tf.summary.merge_all()
 
     # Initialize the variables
     init = tf.global_variables_initializer()
@@ -193,16 +213,22 @@ if __name__ == "__main__":
     with tf.Session() as sess:
         # Run the initializer
         sess.run(init)
-
+        writer = tf.summary.FileWriter("data/1")
+        writer.add_graph(sess.graph)
         for step in range(1, training_steps + 1):
             batch_x, batch_y, batch_seqlen = trainset.next(batch_size)
             # Run optimization op (backprop)
             sess.run(optimizer, feed_dict={x: batch_x, y: batch_y,
                                            seqlen: batch_seqlen})
+
             if step % display_step == 0 or step == 1:
                 # Calculate batch accuracy & loss
+                lr = sess.run(learning_rate)
                 acc, loss = sess.run([accuracy, cost], feed_dict={x: batch_x, y: batch_y,
                                                                   seqlen: batch_seqlen})
+                summary = sess.run(merged_summary, feed_dict={x: batch_x, y: batch_y,
+                                                                  seqlen: batch_seqlen})
+                writer.add_summary(summary, step)
                 print("Step " + str(step * batch_size) + ", Minibatch Loss= " + \
                       "{:.6f}".format(loss) + ", Training Accuracy= " + \
                       "{:.5f}".format(acc))
