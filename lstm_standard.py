@@ -17,11 +17,11 @@ import time
 
 # Parameters
 #learning_rate = 6.2298265 * 10**-6
-start_learning_rate = 0.1
+start_learning_rate = 5 * 10**-7
 training_steps = 1000
-batch_size = 256
-display_step = 100
-logs_path = "/data"
+batch_size = 512
+display_step = 50
+log_dir = "data/6"
 
 # Network Parameters
 seq_max_len = 797  # Sequence max length
@@ -67,7 +67,7 @@ class Memlog_1(object):
             # odd_numbered line
             if i % 2 == 1:
                 if (list_line[0] == 0):
-                    self.labels.append([0., 0.])
+                    self.labels.append([1., 0.])
                     zero += 1
                 else:
                     self.labels.append([0., 1.])
@@ -79,7 +79,7 @@ class Memlog_1(object):
                 length = len(list_line)
                 data_tmp = []
                 for job in range(length):
-                    data_tmp.extend(data_processing_due_time[list_line[job] - 1])
+                    data_tmp.extend(data_processing_due_time[list_line[job] - 1 + 201])
                 data_tmp.insert(0, data_start_time[k])
                 data_tmp = data_instance + data_tmp
 
@@ -130,11 +130,13 @@ def dynamicRNN(x, seqlen, weights, biases):
     x = tf.unstack(value=x, num=seq_max_len, axis=1)
 
     # Define a lstm cell with tensorflow
-    lstm_cell = tf.contrib.rnn.BasicLSTMCell(n_hidden)
+    with tf.name_scope("LSTM_layers"):
+        with tf.name_scope("LSTM_cell"):
+            lstm_cell = tf.contrib.rnn.BasicLSTMCell(n_hidden)
 
     # Get lstm cell output, providing "sequence_length" will perform dynamic
     # calculation.
-    outputs, states = tf.contrib.rnn.static_rnn(lstm_cell, x, dtype=tf.float32, sequence_length=seqlen)
+        outputs, states = tf.contrib.rnn.static_rnn(lstm_cell, x, dtype=tf.float32, sequence_length=seqlen)
 
     # When performing dynamic calculation, we must retrieve the last
     # dynamically computed output, i.e., if a sequence length is 10, we need
@@ -172,40 +174,42 @@ if __name__ == "__main__":
         # A placeholder for indicating each sequence length
         seqlen = tf.placeholder(tf.int32, [None], name="sequence_len")
 
-    with tf.name_scope("weights"):
+    with tf.name_scope('weights'):
     # Define weights
         weights = {
             'out': tf.Variable(tf.random_normal([n_hidden, n_classes]))
         }
 
-    with tf.name_scope("biases"):
+    with tf.name_scope('biases'):
         biases = {
             'out': tf.Variable(tf.random_normal([n_classes]))
         }
 
     pred = dynamicRNN(x, seqlen, weights, biases)
 
-    with tf.name_scope("cost"):
+    with tf.name_scope('cost'):
         # Define loss and optimizer
         cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
+        #tf.summary.histogram('predict',tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y)[0])
 
-    with tf.name_scope("learning_rate"):
+    with tf.name_scope('learning_rate'):
         global_step = tf.Variable(0)
-        learning_rate = tf.train.exponential_decay(start_learning_rate, global_step, 100, 0.5, staircase=True)
+        learning_rate = tf.train.exponential_decay(start_learning_rate, global_step, 100, 0.96, staircase=True)
 
-    with tf.name_scope("train"):
+    with tf.name_scope('train'):
         optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cost, global_step=global_step)
 
-    with tf.name_scope("accuracy"):
+    with tf.name_scope('accuracy'):
         # Evaluate model
         correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-    tf.summary.scalar("learning_rate", learning_rate)
-    tf.summary.scalar("cost", cost)
-    tf.summary.scalar("accuracy", accuracy)
-    merged_summary = tf.summary.merge_all()
+    tf.summary.scalar('learning_rate', learning_rate)
+    tf.summary.scalar('cost', cost)
+    tf.summary.scalar('accuracy', accuracy)
 
+    merged_summary = tf.summary.merge_all()
+    writer = tf.summary.FileWriter(log_dir)
     # Initialize the variables
     init = tf.global_variables_initializer()
 
@@ -213,7 +217,7 @@ if __name__ == "__main__":
     with tf.Session() as sess:
         # Run the initializer
         sess.run(init)
-        writer = tf.summary.FileWriter("data/1")
+
         writer.add_graph(sess.graph)
         for step in range(1, training_steps + 1):
             batch_x, batch_y, batch_seqlen = trainset.next(batch_size)
