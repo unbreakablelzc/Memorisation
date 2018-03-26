@@ -1,0 +1,3 @@
+1000 steps
+no shuffle
+with learning rate decay

@@ -1,0 +1,2 @@
+without learning rate decay
+lr = 10-5

@@ -1,0 +1,3 @@
+1000 steps
+learning decay
+with shuffle

@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module lstm</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>lstm</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:d%3A%5Cprd%5Ccode%5Cmemorisation%5Clstm.py">d:\prd\code\memorisation\lstm.py</a></font></td></tr></table>
+    <p><tt>A&nbsp;Recurrent&nbsp;Neural&nbsp;Network&nbsp;(LSTM)&nbsp;that&nbsp;performs&nbsp;dynamic&nbsp;computation<br>
+over&nbsp;sequences&nbsp;with&nbsp;variable&nbsp;length.This&nbsp;example&nbsp;is&nbsp;using&nbsp;a&nbsp;memlog_200_1<br>
+and&nbsp;data_200_200_hard&nbsp;dataset&nbsp;to&nbsp;classify&nbsp;sequences.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="random.html">random</a><br>
+</td><td width="25%" valign=top><a href="tensorflow.html">tensorflow</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="lstm.html#AccuarcyTest">AccuarcyTest</a>
+</font></dt><dt><font face="helvetica, arial"><a href="lstm.html#DataGenerator">DataGenerator</a>
+</font></dt><dt><font face="helvetica, arial"><a href="lstm.html#ModelRNN">ModelRNN</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="AccuarcyTest">class <strong>AccuarcyTest</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Use&nbsp;test&nbsp;data&nbsp;to&nbsp;test&nbsp;accuracy.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="AccuarcyTest-test_accuarcy"><strong>test_accuarcy</strong></a>(self, sess)</dt><dd><tt>Generate&nbsp;test&nbsp;data&nbsp;and&nbsp;test.<br>
+&nbsp;<br>
+:param&nbsp;sess:&nbsp;An&nbsp;instance&nbsp;of&nbsp;tf.Session&nbsp;for&nbsp;running&nbsp;Tensorflow&nbsp;test&nbsp;operation.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="DataGenerator">class <strong>DataGenerator</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Generate&nbsp;data,&nbsp;labels,&nbsp;length&nbsp;of&nbsp;sequence.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="DataGenerator-__init__"><strong>__init__</strong></a>(self)</dt><dd><tt>Inits&nbsp;data,&nbsp;labels,&nbsp;length&nbsp;of&nbsp;sequences.</tt></dd></dl>
+
+<dl><dt><a name="DataGenerator-data_balance"><strong>data_balance</strong></a>(self, path_solutions, path_train, path_test)</dt><dd><tt>Remove&nbsp;some&nbsp;negtive&nbsp;samples&nbsp;to&nbsp;balance&nbsp;data.<br>
+&nbsp;<br>
+There&nbsp;are&nbsp;two&nbsp;kinds&nbsp;of&nbsp;data&nbsp;and&nbsp;we&nbsp;need&nbsp;to&nbsp;balance&nbsp;them&nbsp;to&nbsp;make&nbsp;the&nbsp;learning<br>
+process&nbsp;more&nbsp;accurate.&nbsp;And&nbsp;the&nbsp;data&nbsp;will&nbsp;be&nbsp;divided&nbsp;into&nbsp;training&nbsp;data&nbsp;and<br>
+test&nbsp;data.<br>
+If&nbsp;the&nbsp;data&nbsp;is&nbsp;already&nbsp;balanced,&nbsp;we&nbsp;skip&nbsp;it.</tt></dd></dl>
+
+<dl><dt><a name="DataGenerator-data_count"><strong>data_count</strong></a>(self, path)</dt><dd><tt>Count&nbsp;the&nbsp;data&nbsp;number&nbsp;of&nbsp;two&nbsp;classes.<br>
+:param&nbsp;path:&nbsp;Path&nbsp;of&nbsp;data&nbsp;file.<br>
+:return:&nbsp;Number&nbsp;of&nbsp;negtive&nbsp;data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number&nbsp;of&nbsp;positive&nbsp;data.</tt></dd></dl>
+
+<dl><dt><a name="DataGenerator-data_extract"><strong>data_extract</strong></a>(self, max_seq_len, path='')</dt><dd><tt>Extracts&nbsp;useful&nbsp;data&nbsp;from&nbsp;data&nbsp;file&nbsp;and&nbsp;reshapes&nbsp;it.<br>
+&nbsp;<br>
+:param&nbsp;max_seq_len:&nbsp;An&nbsp;int&nbsp;which&nbsp;represents&nbsp;maximum&nbsp;length&nbsp;of&nbsp;jobs&nbsp;in&nbsp;one&nbsp;solution.<br>
+:param&nbsp;path:&nbsp;Path&nbsp;of&nbsp;file&nbsp;used&nbsp;to&nbsp;generate&nbsp;trainging&nbsp;data&nbsp;or&nbsp;test&nbsp;data.<br>
+:return:&nbsp;null</tt></dd></dl>
+
+<dl><dt><a name="DataGenerator-data_shuffle"><strong>data_shuffle</strong></a>(self)</dt><dd><tt>Shuffle&nbsp;the&nbsp;data.</tt></dd></dl>
+
+<dl><dt><a name="DataGenerator-next_batch"><strong>next_batch</strong></a>(self, batch_size)</dt><dd><tt>Form&nbsp;a&nbsp;batch&nbsp;of&nbsp;data.&nbsp;When&nbsp;dataset&nbsp;end&nbsp;is&nbsp;reached,&nbsp;start&nbsp;over.<br>
+&nbsp;<br>
+:param&nbsp;batch_size:&nbsp;Size&nbsp;of&nbsp;each&nbsp;batch,&nbsp;the&nbsp;number&nbsp;of&nbsp;samples&nbsp;used&nbsp;to&nbsp;train&nbsp;each&nbsp;step.<br>
+:return:&nbsp;A&nbsp;batch&nbsp;of&nbsp;data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;batch&nbsp;of&nbsp;labels.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;batch&nbsp;of&nbsp;sequence&nbsp;length.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ModelRNN">class <strong>ModelRNN</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Define&nbsp;a&nbsp;dynamic&nbsp;rnn&nbsp;structure.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ModelRNN-dynamic_rnn"><strong>dynamic_rnn</strong></a>(self, x, seqlen, weights, biases)</dt><dd><tt>Prepare&nbsp;data&nbsp;shape&nbsp;to&nbsp;match&nbsp;`rnn`&nbsp;function&nbsp;requirements<br>
+Current&nbsp;data&nbsp;input&nbsp;shape:&nbsp;(batch_size,&nbsp;n_steps/lenJobs,&nbsp;n_input/3values)<br>
+Required&nbsp;shape:&nbsp;'n_steps'&nbsp;tensors&nbsp;list&nbsp;of&nbsp;shape&nbsp;(batch_size,&nbsp;n_input)<br>
+&nbsp;<br>
+:param&nbsp;x:&nbsp;A&nbsp;tensor&nbsp;which&nbsp;holds&nbsp;inputs&nbsp;value,&nbsp;shape:(?,&nbsp;200,&nbsp;3),&nbsp;dtype:float32.<br>
+:param&nbsp;seqlen:&nbsp;A&nbsp;tensor&nbsp;which&nbsp;holds&nbsp;sequence&nbsp;length&nbsp;value,&nbsp;dtype:int32.<br>
+:param&nbsp;weights:&nbsp;A&nbsp;tf.Variable&nbsp;of&nbsp;shape(128,&nbsp;2).<br>
+:param&nbsp;biases:&nbsp;A&nbsp;tf.Variable&nbsp;of&nbsp;shape(2,&nbsp;).<br>
+:return:&nbsp;The&nbsp;output&nbsp;of&nbsp;lstm&nbsp;cell.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>batch_size</strong> = 512<br>
+<strong>dir_instances</strong> = 'data/ins_2.txt'<br>
+<strong>dir_solutions</strong> = 'data/memlog_200_2.txt'<br>
+<strong>dir_test_data</strong> = 'data/memlog_2_test.txt'<br>
+<strong>dir_train_data</strong> = 'data/memlog_2.txt'<br>
+<strong>display_step</strong> = 50<br>
+<strong>log_dir</strong> = 'data/try'<br>
+<strong>model_dir</strong> = 'D:/PRD/Code/Memorisation/MODEL/666/model.ckpt'<br>
+<strong>n_classes</strong> = 2<br>
+<strong>n_hidden</strong> = 256<br>
+<strong>seq_max_len</strong> = 200<br>
+<strong>start_learning_rate</strong> = 0.001<br>
+<strong>training_steps</strong> = 2000</td></tr></table>
+</body></html>

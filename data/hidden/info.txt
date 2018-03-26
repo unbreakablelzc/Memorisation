@@ -1,0 +1,2 @@
+n_hidden=256
+with learning decay
