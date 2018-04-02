@@ -74,6 +74,8 @@ class TestData(unittest.TestCase):
         self.assertEqual(50, data_generator.batch_id)
 
 if __name__ == '__main__':
+    unittest.main()
+    """
     suite = unittest.TestSuite()
     suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestData))
 
@@ -84,3 +86,4 @@ if __name__ == '__main__':
                                 verbosity=2
                                 )
         runner.run(suite)
+    """

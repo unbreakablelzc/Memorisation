@@ -8,13 +8,12 @@ import random
 import os
 
 # Parameters
-#learning_rate = 6.2298265 * 10**-6
-start_learning_rate = 10**-2
-training_steps = 2000
-batch_size = 512
-display_step = 50
-log_dir = "data/try" # Directory to save the TensorFlow events files
-model_dir = "D:/PRD/Code/Memorisation/MODEL/666/model.ckpt" # Directory to save the TensorFlow model
+start_learning_rate = 10**-5
+training_steps = 2000 # Number of training steps
+batch_size = 512 # Number of data used to train each step
+display_step = 50 # Print the loss and accuracy each 50 steps
+log_dir = "data/batchsize" # Directory to save the TensorFlow events files
+model_dir = "D:/PRD/Code/Memorisation/MODEL/batchsize/model.ckpt" # Directory to save the TensorFlow model
 
 # Network Parameters
 seq_max_len = 200  # Sequence max length, Nbjobs
@@ -140,7 +139,7 @@ class DataGenerator:
         """Extracts useful data from data file and reshapes it.
 
         :param max_seq_len: An int which represents maximum length of jobs in one solution.
-        :param path: Path of file used to generate trainging data or test data.
+        :param path: Path of file used to generate training data or test data.
         :return: null
 
         """
@@ -307,6 +306,12 @@ class AccuarcyTest():
         print("Testing Accuracy:", \
               sess.run(accuracy, feed_dict={x: test_data, y: test_labels,
                                             seqlen: test_seqlen}))
+        """acc, loss = sess.run([accuracy, cost], feed_dict={x: test_data, y: test_labels,
+                                                          seqlen: test_seqlen})
+        summary = sess.run(merged_summary, feed_dict={x: test_data, y: test_labels,
+                                                      seqlen: test_seqlen})
+        writer.add_summary(summary)
+        print(" Loss= " + "{:.6f}".format(loss) + ", Test Accuracy= " + "{:.5f}".format(acc))"""
 
 if __name__ == "__main__":
     train = DataGenerator()
@@ -317,6 +322,7 @@ if __name__ == "__main__":
     train.data_shuffle()
 
     # Create a graph of Tensorflow
+    print("---------------------Creating graph---------------------")
     with tf.name_scope('input'):
         x = tf.placeholder(tf.float32, [None, seq_max_len, 3], name="x_input") # tf Graph x_input
         y = tf.placeholder(tf.float32, [None, n_classes], name="y_input") # tf Graph y_input
@@ -335,24 +341,25 @@ if __name__ == "__main__":
     pred = ModelRNN().dynamic_rnn(x, seqlen, weights, biases) # Create an instance of dynamic rnn model
     tf.summary.histogram('predict', pred) # Adding a histogram summary for visualizing data in TensorBoard
 
-    with tf.name_scope('cost'):
+    with tf.name_scope('loss'):
         cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=pred, labels=y)) # Define loss
 
-    with tf.name_scope('learning_rate'):
-        global_step = tf.Variable(0)
+    #with tf.name_scope('learning_rate'):
+        # global_step = tf.Variable(0)
         # Apply exponential decay to the learning rate.
-        learning_rate = tf.train.exponential_decay(start_learning_rate, global_step, 200, 0.96, staircase=True)
+        #learning_rate = tf.train.exponential_decay(start_learning_rate, global_step, 200, 0.48, staircase=True)
 
     with tf.name_scope('train'):
-        optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cost, global_step=global_step)
+        optimizer = tf.train.GradientDescentOptimizer(learning_rate=start_learning_rate).minimize(cost)
+        #optimizer = tf.train.GradientDescentOptimizer(learning_rate=start_learning_rate).minimize(cost, global_step=global_step)
         #optimizer = tf.train.MomentumOptimizer(learning_rate, 0.9).minimize(cost, global_step) # Define optimizer
     with tf.name_scope('accuracy'):
         # Evaluate model
         correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-    tf.summary.scalar('learning_rate', learning_rate)
-    tf.summary.scalar('cost', cost)
+    #tf.summary.scalar('learning_rate', learning_rate)
+    tf.summary.scalar('loss', cost)
     tf.summary.scalar('accuracy', accuracy)
 
     merged_summary = tf.summary.merge_all()
@@ -372,7 +379,7 @@ if __name__ == "__main__":
             sess.run(optimizer, feed_dict={x: batch_x, y: batch_y,
                                            seqlen: batch_seqlen})  # Run optimization op (backprop)
             if step % display_step == 0 or step == 1:
-                lr = sess.run(learning_rate)
+                #lr = sess.run(learning_rate)
                 # Verify the relation of outputs and state
                 # pred_outputs = sess.run(pred, feed_dict={x: batch_x, y: batch_y, seqlen: batch_seqlen})
                 # print("outputs:", pred_outputs)
@@ -390,3 +397,4 @@ if __name__ == "__main__":
 
         AccuarcyTest().test_accuarcy(sess) # Test accuracy
         saver.save(sess, model_dir) # Save the model
+        print("Save model success!")
